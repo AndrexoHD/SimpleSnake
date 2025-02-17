@@ -68,7 +68,7 @@ public class GamePanel extends JPanel implements ActionListener{
             // draw snake
             for (int i = 0; i < bodyParts; i++) {
                 if (i == 0) {
-                    g.setColor(Color.BLUE);
+                    g.setColor(Color.GREEN);
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 } else {
                     g.setColor(new Color(45, 180, 0));
@@ -130,16 +130,16 @@ public class GamePanel extends JPanel implements ActionListener{
         if (x[0] < 0) {
             running = false;
         }
-        // check if head touches right border
-        if (x[0] > SCREEN_WIDTH) {
+        // check if head touches right border -1 because clipping for some reason
+        if (x[0] > SCREEN_WIDTH - 1) {
             running = false;
         }
         // check if head touches top border
         if (y[0] < 0) {
             running = false;
         }
-        // check if head touches bottom border
-        if (y[0] > SCREEN_HEIGHT) {
+        // check if head touches bottom border; -1 because clipping for some reason
+        if (y[0] > SCREEN_HEIGHT - 1) {
             running = false;
         }
 
