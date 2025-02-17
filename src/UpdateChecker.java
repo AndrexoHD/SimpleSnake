@@ -6,7 +6,12 @@ import java.net.URL;
 
 public class UpdateChecker {
     private static final String VERSION_URL = "https://raw.githubusercontent.com/AndrexoHD/SimpleSnake/refs/heads/main/Release/version.txt";
-    private static final String CURRENT_VERSION = "1.0.2"; // current version; MUST BE SAME AS IN version.txt !!!
+    /**
+    * Current version.
+    * <p>if on GitHub: MUST BE SAME as in version.txt!!!
+    * <p>POSSIBLE ENDLESS RECUSION IF NOT
+    */
+    private static final String CURRENT_VERSION = "1.0.3";
 
     public UpdateChecker() {
         try {
@@ -20,11 +25,11 @@ public class UpdateChecker {
             reader.close();
 
             if (isNewerVersion(latestVersion, CURRENT_VERSION)) {
-                System.out.println("Neue Version verfügbar: " + latestVersion);
-                System.out.println("Download-Link: " + downloadUrl);
+                System.out.println("New version available: " + latestVersion);
+                System.out.println("Download-link: " + downloadUrl);
                 new Updater(downloadUrl);
             } else {
-                System.out.println("Du hast bereits die neueste Version.");
+                System.out.println("You already have the latest version.");
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,5 +1,5 @@
+import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -43,27 +43,36 @@ public class Updater {
         if (os.contains("win")) {
             // Windows: Create a batch file and execute it
             String updateScript = "update.bat";
-            try (PrintWriter writer = new PrintWriter(new FileWriter(updateScript))) {
+            File updateFile = new File(updateScript);
+            try (PrintWriter writer = new PrintWriter(updateFile)) {
                 writer.println("@echo off");
-                writer.println("timeout /t 2"); // Wait 2 seconds to ensure the old file is no longer locked
+                writer.println("echo Updating to new version... please wait");
+                writer.println("timeout /t 3"); // Wait 3 seconds to ensure the old file is no longer locked
                 writer.println("del " + FILE_NAME);
                 writer.println("rename " + TEMP_NAME + " " + FILE_NAME);
                 writer.println("start javaw -jar " + FILE_NAME);
+                writer.println("start /b cmd /c \"timeout /t 1 >nul & del /f /q update.bat\"");
                 writer.println("exit");
             }
             new ProcessBuilder("cmd.exe", "/c", "start", updateScript).start();
         } else {
             // Linux/Mac: Create a shell script
             String updateScript = "update.sh";
-            try (PrintWriter writer = new PrintWriter(new FileWriter(updateScript))) {
+            File updateFile = new File(updateScript);
+            try (PrintWriter writer = new PrintWriter(updateFile)) {
                 writer.println("#!/bin/bash");
-                writer.println("sleep 2"); // Wait 2 seconds
+                writer.println("echo Updating to new version... please wait");
+                writer.println("sleep 3");
                 writer.println("rm -f " + FILE_NAME);
                 writer.println("mv " + TEMP_NAME + " " + FILE_NAME);
                 writer.println("java -jar " + FILE_NAME + " &");
                 writer.println("exit");
             }
             new ProcessBuilder("bash", updateScript).start();
+            // delete the update.sh file
+            new ProcessBuilder("bash", "-c", "sleep 1 && rm -- update.sh").start();
+
+
         }
     }
 }
