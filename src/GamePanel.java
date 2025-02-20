@@ -20,6 +20,7 @@ public class GamePanel extends JPanel implements ActionListener{
     int appleX;
     int appleY;
     char direction = 'R';
+    boolean startScreen = true;
     boolean running = false;
     boolean inputRecieved = false;
     boolean drawGrid = false;
@@ -39,10 +40,12 @@ public class GamePanel extends JPanel implements ActionListener{
     }
 
     public void startGame() {
-        newApple();
-        running = true;
-        timer = new Timer(DELAY, this);
-        timer.start();
+        if(!startScreen) {
+            newApple();
+            timer = new Timer(DELAY, this);
+            timer.start();
+            running = true;
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -51,7 +54,9 @@ public class GamePanel extends JPanel implements ActionListener{
     }
 
     public void draw(Graphics g) {
-        if (running) {
+        if(startScreen) {
+            homeMenu(g);
+        } else if(running) {
             if(drawGrid) {
                 for (int i = 0; i < SCREEN_HEIGHT/UNIT_SIZE; i++) {
                     g.drawLine(i*UNIT_SIZE, 0, i*UNIT_SIZE, SCREEN_HEIGHT); // vertical lines
@@ -67,10 +72,10 @@ public class GamePanel extends JPanel implements ActionListener{
             g.fillOval(appleX, appleY, UNIT_SIZE, UNIT_SIZE);
             // draw snake
             for (int i = 0; i < bodyParts; i++) {
-                if (i == 0) {
+                if (i == 0) { // head
                     g.setColor(Color.GREEN);
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
-                } else {
+                } else { // body
                     g.setColor(new Color(45, 180, 0));
                     g.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
                 }
@@ -148,6 +153,45 @@ public class GamePanel extends JPanel implements ActionListener{
         }
     }
 
+    /**
+     * The inside of this method defines the contents of the home menu.
+     * @param g
+     */
+    public void homeMenu(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Impact", Font.PLAIN, 70));
+        FontMetrics metrics = getFontMetrics(g.getFont());
+        g.drawString("SimpleSnake", (SCREEN_WIDTH - metrics.stringWidth("SimpleSnake"))/2, SCREEN_HEIGHT/3);
+        g.setColor(Color.LIGHT_GRAY);
+        g.setFont(new Font("Arial", Font.BOLD, 30));
+        metrics = getFontMetrics(g.getFont());
+        String controls = "Controls:\n\nW A S D or ↑ ↓ → ← to move.\nSpace to start or pause game.\nESC to close game.";
+        String[] lines = controls.split("\n");
+        int y = SCREEN_HEIGHT/2;
+        for (String line : lines) {
+            g.drawString(line, 50, y);
+            y += g.getFont().getSize();
+        }
+        // start game button
+        this.setLayout(null);
+        JButton startGameButton = new JButton("<html><center>Start Game<br>[Space]</center></html>");
+        startGameButton.setFont(new Font("Arial", Font.BOLD, 20));
+        startGameButton.setBounds((SCREEN_WIDTH - 150)/2, SCREEN_HEIGHT-125, 150, 65);
+        this.add(startGameButton);
+        startGameButton.addActionListener((e) -> {
+            startFromHome();
+        });
+    }
+
+    /**
+     * This method only gets called once from the start menu.
+     */
+    public void startFromHome() {
+        this.removeAll();
+        startScreen = false;
+        startGame();
+    }
+
     public void gameOver(Graphics g) {
         // erase snake from screen
         for (int i = 0; i < bodyParts; i++) {
@@ -161,24 +205,28 @@ public class GamePanel extends JPanel implements ActionListener{
         g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/3);
         g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/2);
         // display highscore
-        if (applesEaten > highscoreManager.readHighscore()) {
+        boolean displayHint = true; // for displaying a hint, if no new highscore has been achieved
+        if (applesEaten > highscoreManager.readHighscore()) { // new highscore
             highscoreManager.newHighscore(applesEaten);
             g.setColor(Color.GREEN);
             g.setFont(new Font("Arial", Font.BOLD, 50));
             metrics = getFontMetrics(g.getFont());
             g.drawString("NEW HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("NEW HIGHSCORE: " + applesEaten))/2, (SCREEN_HEIGHT/3)*2);
+            displayHint = false;
         } else {
             g.setColor(Color.LIGHT_GRAY);
             g.drawString("Highscore: " + highscoreManager.readHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Highscore: " + highscoreManager.readHighscore()))/2, (SCREEN_HEIGHT/3)*2);
         }
         // hint for toggling grid
-        g.setColor(Color.LIGHT_GRAY);
-        g.setFont(new Font("Arial", Font.PLAIN, 20));
-        metrics = getFontMetrics(g.getFont());
-        g.drawString("Hint: Press G to toggle grid", (SCREEN_WIDTH - metrics.stringWidth("Hint: Press G to toggle grid"))/2, SCREEN_HEIGHT/5*4);
+        if (displayHint) {
+            g.setFont(new Font("Arial", Font.PLAIN, 20));
+            metrics = getFontMetrics(g.getFont());
+            g.drawString("Hint: Press G to toggle grid", (SCREEN_WIDTH - metrics.stringWidth("Hint: Press G to toggle grid"))/2, SCREEN_HEIGHT/5*4);
+        }
         // restart button
         JButton restartButton = new JButton("Restart [R]");
-        restartButton.setBounds((SCREEN_WIDTH - 100)/2, SCREEN_HEIGHT-100, 100, 50);
+        restartButton.setBounds((SCREEN_WIDTH - 200)/2, SCREEN_HEIGHT-100, 200, 50);
+        restartButton.setFont(new Font("Arial", Font.BOLD, 30));
         this.add(restartButton);
         restartButton.addActionListener((e) -> {
             resetGame();
@@ -191,6 +239,7 @@ public class GamePanel extends JPanel implements ActionListener{
         direction = 'R';
         x[0] = 0;
         y[0] = 0;
+        running = true;
         this.removeAll();
         startGame();
     }
@@ -198,7 +247,7 @@ public class GamePanel extends JPanel implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         inputRecieved = false;
-        if (running) {
+        if(running) {
             move();
             checkApple();
             checkCollisions();
@@ -255,6 +304,8 @@ public class GamePanel extends JPanel implements ActionListener{
                             pause = false;
                             timer.start();
                         }
+                    } else if(startScreen) {
+                        startFromHome();
                     }
                     break;
                 case KeyEvent.VK_ESCAPE:

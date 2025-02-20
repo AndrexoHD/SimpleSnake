@@ -23,8 +23,8 @@ public class Updater {
         }
     }
 
-    private static void downloadFile(String fileURL, String savePath) throws IOException, URISyntaxException {
-        URL url = new URI(fileURL).toURL();
+    private static void downloadFile(String DOWNLOAD_URL, String savePath) throws IOException, URISyntaxException {
+        URL url = new URI(DOWNLOAD_URL).toURL();
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
 
@@ -32,12 +32,21 @@ public class Updater {
              FileOutputStream out = new FileOutputStream(savePath)) {
             byte[] buffer = new byte[4096];
             int bytesRead;
+            // int blockCounter = 1; // for debug info
             while ((bytesRead = in.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
+                // System.out.println("Block Nr: " + blockCounter++ + "\nBytes read: " + bytesRead); // debug info
             }
         }
     }
 
+    /**
+     * Creates a script, that automatically deletes the old and renames the new Snake-game version.
+     * (from {@code TEMP_NAME} to {@code FILE_NAME}).
+     * <p>Afterwards the update script gets deleted per ProcessBuilder command,
+     * creating a seamless update experience.
+     * @throws IOException
+     */
     private static void startUpdateProcess() throws IOException {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
@@ -47,7 +56,7 @@ public class Updater {
             try (PrintWriter writer = new PrintWriter(updateFile)) {
                 writer.println("@echo off");
                 writer.println("echo Updating to new version... please wait");
-                writer.println("timeout /t 3"); // Wait 3 seconds to ensure the old file is no longer locked
+                writer.println("timeout /t 2"); // Wait 2 seconds to ensure the old file is no longer locked
                 writer.println("del " + FILE_NAME);
                 writer.println("rename " + TEMP_NAME + " " + FILE_NAME);
                 writer.println("start javaw -jar " + FILE_NAME);
@@ -62,7 +71,7 @@ public class Updater {
             try (PrintWriter writer = new PrintWriter(updateFile)) {
                 writer.println("#!/bin/bash");
                 writer.println("echo Updating to new version... please wait");
-                writer.println("sleep 3");
+                writer.println("sleep 2");
                 writer.println("rm -f " + FILE_NAME);
                 writer.println("mv " + TEMP_NAME + " " + FILE_NAME);
                 writer.println("java -jar " + FILE_NAME + " &");
@@ -71,8 +80,6 @@ public class Updater {
             new ProcessBuilder("bash", updateScript).start();
             // delete the update.sh file
             new ProcessBuilder("bash", "-c", "sleep 1 && rm -- update.sh").start();
-
-
         }
     }
 }
