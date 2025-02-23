@@ -204,23 +204,23 @@ public class GamePanel extends JPanel implements ActionListener{
             y[i] = 0;
         }
         // game over text
-        g.setColor(Color.red);
         g.setFont(new Font("Arial", Font.BOLD, 75));
         FontMetrics metrics = getFontMetrics(g.getFont());
-        g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/3);
-        g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/2);
-        // display highscore
+        g.setColor(Color.red);
+        g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/4);
+        // highscoreManager.resetHighscore();
         boolean displayHint = true; // for displaying a hint, if no new highscore has been achieved
         if (applesEaten > highscoreManager.readHighscore()) { // new highscore
             highscoreManager.newHighscore(applesEaten);
             g.setColor(Color.GREEN);
-            g.setFont(new Font("Arial", Font.BOLD, 50));
+            g.setFont(new Font("Arial", Font.BOLD, 55));
             metrics = getFontMetrics(g.getFont());
-            g.drawString("NEW HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("NEW HIGHSCORE: " + applesEaten))/2, (SCREEN_HEIGHT/3)*2);
+            g.drawString("NEW HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("NEW HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/5*2);
             displayHint = false;
         } else {
+            g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/5*2);
             g.setColor(Color.LIGHT_GRAY);
-            g.drawString("Highscore: " + highscoreManager.readHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Highscore: " + highscoreManager.readHighscore()))/2, (SCREEN_HEIGHT/3)*2);
+            g.drawString("Highscore: " + highscoreManager.readHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Highscore: " + highscoreManager.readHighscore()))/2, SCREEN_HEIGHT/5*3);
         }
         // hint for toggling grid
         if (displayHint) {
@@ -230,7 +230,7 @@ public class GamePanel extends JPanel implements ActionListener{
         }
         // restart button
         JButton restartButton = new JButton("Restart [R]");
-        restartButton.setBounds((SCREEN_WIDTH - 200)/2, SCREEN_HEIGHT-100, 200, 50);
+        restartButton.setBounds((SCREEN_WIDTH - 200)/2, SCREEN_HEIGHT-75, 200, 50);
         restartButton.setFont(new Font("Arial", Font.BOLD, 30));
         this.add(restartButton);
         restartButton.addActionListener((e) -> {

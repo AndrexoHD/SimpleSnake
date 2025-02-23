@@ -20,7 +20,7 @@ public class UpdateChecker {
     * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!
     * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!
     */
-    private static final String CURRENT_VERSION = "1.2.0";
+    private static final String CURRENT_VERSION = "1.2.1";
 
     public UpdateChecker() {
         try {
