@@ -23,6 +23,11 @@ public class GamePanel extends JPanel implements ActionListener{
     boolean startScreen = true;
     boolean running = false;
     boolean inputRecieved = false;
+
+    /**
+     * Used if a second input occurs mid-frame. Ensures smoother gameplay.
+     */
+    Character secondInput = null;
     boolean drawGrid = false;
     boolean pause = false;
     Timer timer;
@@ -251,6 +256,10 @@ public class GamePanel extends JPanel implements ActionListener{
             move();
             checkApple();
             checkCollisions();
+            if (secondInput != null) {
+                direction = secondInput;
+                secondInput = null;
+            }
         }
         repaint();
     }
@@ -261,28 +270,32 @@ public class GamePanel extends JPanel implements ActionListener{
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT:
                 case KeyEvent.VK_A:
-                    if (direction != 'R' && inputRecieved == false && pause == false) {
+                    if(inputRecieved) secondInput = 'L';
+                    else if (direction != 'R' && pause == false) {
                         direction = 'L';
                         inputRecieved = true;
                     }
                     break;
                 case KeyEvent.VK_RIGHT:
                 case KeyEvent.VK_D:
-                    if (direction != 'L' && inputRecieved == false && pause == false) {
+                    if(inputRecieved) secondInput = 'R';
+                    else if (direction != 'L' && pause == false) {
                         direction = 'R';
                         inputRecieved = true;
                     }
                     break;
                 case KeyEvent.VK_UP:
                 case KeyEvent.VK_W:
-                    if (direction != 'D' && inputRecieved == false && pause == false) {
+                    if(inputRecieved) secondInput = 'U';
+                    else if (direction != 'D' && pause == false) {
                         direction = 'U';
                         inputRecieved = true;
                     }
                     break;
                 case KeyEvent.VK_DOWN:
                 case KeyEvent.VK_S:
-                    if (direction != 'U' && inputRecieved == false && pause == false) {
+                    if(inputRecieved) secondInput = 'D';
+                    else if (direction != 'U' && pause == false) {
                         direction = 'D';
                         inputRecieved = true;
                     }
