@@ -307,6 +307,7 @@ public class GamePanel extends JPanel implements ActionListener{
                     break;
                 case KeyEvent.VK_G:
                     drawGrid = !drawGrid;
+                    repaint();
                     break;
                 case KeyEvent.VK_SPACE:
                     if (running) {
