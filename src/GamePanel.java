@@ -12,7 +12,8 @@ public class GamePanel extends JPanel implements ActionListener{
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_WIDTH*SCREEN_HEIGHT)/UNIT_SIZE;
-    static final int DELAY = 100;
+    static int DELAY = 100;
+    static String difficulty = "Medium";
     final int[] x = new int[GAME_UNITS];
     final int[] y = new int[GAME_UNITS];
     int bodyParts = 6;
@@ -24,9 +25,7 @@ public class GamePanel extends JPanel implements ActionListener{
     boolean running = false;
     boolean inputRecieved = false;
 
-    /**
-     * Used if a second input occurs mid-frame. Ensures smoother gameplay.
-     */
+    /** Used if a second input occurs mid-frame. Ensures smoother gameplay.*/
     Character secondInput = null;
     boolean drawGrid = false;
     boolean pause = false;
@@ -163,12 +162,51 @@ public class GamePanel extends JPanel implements ActionListener{
      * @param g
      */
     public void homeMenu(Graphics g) {
+        // title
         g.setColor(Color.WHITE);
         g.setFont(new Font("Impact", Font.PLAIN, 70));
         FontMetrics metrics = getFontMetrics(g.getFont());
-        g.drawString("SimpleSnake", (SCREEN_WIDTH - metrics.stringWidth("SimpleSnake"))/2, SCREEN_HEIGHT/3);
+        g.drawString("SimpleSnake", (SCREEN_WIDTH - metrics.stringWidth("SimpleSnake"))/2, SCREEN_HEIGHT/10*1);
+        // difficulty
+        g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
+        metrics = getFontMetrics(g.getFont());
+        g.drawString("Difficulty: " + difficulty, (SCREEN_WIDTH - metrics.stringWidth("Difficulty: " + difficulty))/2, SCREEN_HEIGHT/10*2);
+        // easy button
+        JButton easyButton = new JButton("<html><center>Easy<br>[1]</center></html>");
+        easyButton.setBounds(50, SCREEN_HEIGHT/10*3, 150, 75);
+        easyButton.setFont(new Font("Arial", Font.BOLD, 30));
+        easyButton.setFocusable(false);
+        this.add(easyButton);
+        easyButton.addActionListener((e) -> {
+            DELAY = 250;
+            difficulty = "Easy";
+            repaint();
+        });
+        // medium button
+        JButton mediumButton = new JButton("<html><center>Medium<br>[2]</center></html>");
+        mediumButton.setBounds((SCREEN_WIDTH-150)/2, SCREEN_HEIGHT/10*3, 150, 75);
+        mediumButton.setFont(new Font("Arial", Font.BOLD, 25));
+        mediumButton.setFocusable(false);
+        this.add(mediumButton);
+        mediumButton.addActionListener((e) -> {
+            DELAY = 100;
+            difficulty = "Medium";
+            repaint();
+        });
+        // hard button
+        JButton hardButton = new JButton("<html><center>Hard<br>[3]</center></html>");
+        hardButton.setBounds((SCREEN_WIDTH-100)-100, SCREEN_HEIGHT/10*3, 150, 75);
+        hardButton.setFont(new Font("Arial", Font.BOLD, 25));
+        hardButton.setFocusable(false);
+        this.add(hardButton);
+        hardButton.addActionListener((e) -> {
+            DELAY = 50;
+            difficulty = "Hard";
+            repaint();
+        });
+        // controls
         g.setColor(Color.LIGHT_GRAY);
-        g.setFont(new Font("Arial", Font.BOLD, 30));
+        g.setFont(new Font("Arial", Font.BOLD, 25));
         metrics = getFontMetrics(g.getFont());
         String controls = "Controls:\n\nW A S D or ↑ ↓ → ← to move.\nSpace to start or pause game.\nESC to close game.";
         String[] lines = controls.split("\n");
@@ -180,17 +218,15 @@ public class GamePanel extends JPanel implements ActionListener{
         // start game button
         this.setLayout(null);
         JButton startGameButton = new JButton("<html><center>Start Game<br>[Space]</center></html>");
-        startGameButton.setFont(new Font("Arial", Font.BOLD, 20));
-        startGameButton.setBounds((SCREEN_WIDTH - 150)/2, SCREEN_HEIGHT-125, 150, 65);
+        startGameButton.setFont(new Font("Arial", Font.BOLD, 30));
+        startGameButton.setBounds((SCREEN_WIDTH-200)/2, SCREEN_HEIGHT-120, 200, 80);
         this.add(startGameButton);
         startGameButton.addActionListener((e) -> {
             startFromHome();
         });
     }
 
-    /**
-     * This method only gets called once from the start menu.
-     */
+    /** This method only gets called once from homeMenu()*/
     public void startFromHome() {
         this.removeAll();
         startScreen = false;
@@ -207,35 +243,52 @@ public class GamePanel extends JPanel implements ActionListener{
         g.setFont(new Font("Arial", Font.BOLD, 75));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.setColor(Color.red);
-        g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/4);
-        // highscoreManager.resetHighscore();
+        g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/10);
         boolean displayHint = true; // for displaying a hint, if no new highscore has been achieved
         if (applesEaten > highscoreManager.readHighscore()) { // new highscore
             highscoreManager.newHighscore(applesEaten);
             g.setColor(Color.GREEN);
             g.setFont(new Font("Arial", Font.BOLD, 55));
             metrics = getFontMetrics(g.getFont());
-            g.drawString("NEW HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("NEW HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/5*2);
+            g.drawString("NEW HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("NEW HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
             displayHint = false;
         } else {
-            g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/5*2);
+            g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
             g.setColor(Color.LIGHT_GRAY);
-            g.drawString("Highscore: " + highscoreManager.readHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Highscore: " + highscoreManager.readHighscore()))/2, SCREEN_HEIGHT/5*3);
+            g.drawString("Highscore: " + highscoreManager.readHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Highscore: " + highscoreManager.readHighscore()))/2, SCREEN_HEIGHT/10*3);
         }
         // hint for toggling grid
         if (displayHint) {
             g.setFont(new Font("Arial", Font.PLAIN, 20));
             metrics = getFontMetrics(g.getFont());
-            g.drawString("Hint: Press G to toggle grid", (SCREEN_WIDTH - metrics.stringWidth("Hint: Press G to toggle grid"))/2, SCREEN_HEIGHT/5*4);
+            g.drawString("Hint: Press G to toggle grid", (SCREEN_WIDTH - metrics.stringWidth("Hint: Press G to toggle grid"))/2, SCREEN_HEIGHT/20*17);
         }
         // restart button
         JButton restartButton = new JButton("Restart [R]");
-        restartButton.setBounds((SCREEN_WIDTH - 200)/2, SCREEN_HEIGHT-75, 200, 50);
+        restartButton.setBounds((SCREEN_WIDTH-200)/2, SCREEN_HEIGHT-75, 200, 50);
         restartButton.setFont(new Font("Arial", Font.BOLD, 30));
         this.add(restartButton);
         restartButton.addActionListener((e) -> {
             resetGame();
         });
+        // back to home menu button
+        JButton homeButton = new JButton("<html><center>Home<br>[Space]</center></html>");
+        homeButton.setBounds(20, SCREEN_HEIGHT-75, 110, 50);
+        homeButton.setFont(new Font("Arial", Font.BOLD, 18));
+        this.add(homeButton);
+        homeButton.addActionListener((e) -> backToHome());
+    }
+
+    public void backToHome() {
+        this.removeAll();
+        startScreen = true;
+        running = false;
+        bodyParts = 6;
+        applesEaten = 0;
+        direction = 'R';
+        x[0] = 0;
+        y[0] = 0;
+        repaint();
     }
 
     public void resetGame() {
@@ -271,7 +324,7 @@ public class GamePanel extends JPanel implements ActionListener{
                 case KeyEvent.VK_LEFT:
                 case KeyEvent.VK_A:
                     if(inputRecieved) secondInput = 'L';
-                    else if (direction != 'R' && pause == false) {
+                    else if (direction != 'R' && !pause) {
                         direction = 'L';
                         inputRecieved = true;
                     }
@@ -279,7 +332,7 @@ public class GamePanel extends JPanel implements ActionListener{
                 case KeyEvent.VK_RIGHT:
                 case KeyEvent.VK_D:
                     if(inputRecieved) secondInput = 'R';
-                    else if (direction != 'L' && pause == false) {
+                    else if (direction != 'L' && !pause) {
                         direction = 'R';
                         inputRecieved = true;
                     }
@@ -287,7 +340,7 @@ public class GamePanel extends JPanel implements ActionListener{
                 case KeyEvent.VK_UP:
                 case KeyEvent.VK_W:
                     if(inputRecieved) secondInput = 'U';
-                    else if (direction != 'D' && pause == false) {
+                    else if (direction != 'D' && !pause) {
                         direction = 'U';
                         inputRecieved = true;
                     }
@@ -295,7 +348,7 @@ public class GamePanel extends JPanel implements ActionListener{
                 case KeyEvent.VK_DOWN:
                 case KeyEvent.VK_S:
                     if(inputRecieved) secondInput = 'D';
-                    else if (direction != 'U' && pause == false) {
+                    else if (direction != 'U' && !pause) {
                         direction = 'D';
                         inputRecieved = true;
                     }
@@ -311,7 +364,7 @@ public class GamePanel extends JPanel implements ActionListener{
                     break;
                 case KeyEvent.VK_SPACE:
                     if (running) {
-                        if (pause == false) {
+                        if (!pause) {
                             pause = true;
                             timer.stop();
                         } else {
@@ -320,11 +373,34 @@ public class GamePanel extends JPanel implements ActionListener{
                         }
                     } else if(startScreen) {
                         startFromHome();
+                    } else {
+                        backToHome();
                     }
                     break;
                 case KeyEvent.VK_ESCAPE:
                     System.exit(0);
                     break;
+                case KeyEvent.VK_1:
+                    if (startScreen) {
+                        DELAY = 250;
+                        difficulty = "Easy";
+                        repaint();
+                        break;
+                    }
+                case KeyEvent.VK_2:
+                    if (startScreen) {
+                        DELAY = 100;
+                        difficulty = "Medium";
+                        repaint();
+                        break;
+                    }
+                case KeyEvent.VK_3:
+                    if (startScreen) {
+                        DELAY = 50;
+                        difficulty = "Hard";
+                        repaint();
+                        break;
+                    }
             }
         }
     }

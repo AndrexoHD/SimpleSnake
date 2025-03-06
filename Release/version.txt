@@ -1,2 +1,2 @@
-1.2.1
+1.3.0
 https://github.com/AndrexoHD/SimpleSnake/releases/latest/download/Snake.jar
