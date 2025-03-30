@@ -1,8 +1,10 @@
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -11,23 +13,24 @@ import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class UpdateChecker {
     private static final String VERSION_URL = "https://raw.githubusercontent.com/AndrexoHD/SimpleSnake/refs/heads/main/Release/version.txt";
     /**
     * Current version.
-    * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!
-    * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!
+    * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!</p>
+    * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!</p>
     */
-    private static final String CURRENT_VERSION = "1.3.0";
+    private static final String CURRENT_VERSION = "2.0.0";
 
     public UpdateChecker() {
         try {
             URL url = new URI(VERSION_URL).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-
+            conn.setConnectTimeout(60000);
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String latestVersion = reader.readLine(); // first line: version-number
             String downloadUrl = reader.readLine();  // second line: donwload-link
@@ -44,11 +47,38 @@ public class UpdateChecker {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            errorWindow();
         }
     }
 
     private static boolean isNewerVersion(String latest, String current) {
         return latest.compareTo(current) > 0; // Simple lexicographical version check
+    }
+
+    public static void errorWindow() {
+        JFrame errorFrame = new JFrame("Error");
+        String errorText = "There was an error trying to look for updates.";
+        JLabel errorLabel = new JLabel(errorText);
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        FontMetrics metrics = errorLabel.getFontMetrics(errorLabel.getFont());
+        JPanel errorPanel = new JPanel();
+        LayoutManager layout = new FlowLayout();
+        JButton errorOkButton = new JButton("<html><center>Ok<br>[Space]</center></html>");
+        errorOkButton.setRequestFocusEnabled(true);
+        errorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        errorFrame.setSize(metrics.stringWidth(errorText)+20, 130);
+        errorFrame.setLocationRelativeTo(null);
+        errorFrame.setVisible(true);
+
+        errorPanel.setLayout(layout);
+        errorPanel.add(errorLabel);
+        errorPanel.add(errorOkButton);
+
+        errorOkButton.addActionListener((e) -> {
+            errorFrame.dispose();
+            new GameFrame();
+        });
+        errorFrame.add(errorPanel);
     }
 }
 
@@ -56,6 +86,10 @@ class UpdatePrompt extends JPanel {
     private final static int WIDTH = 300;
     private final static int HEIGHT = 200;
 
+    /**
+     * Ugly, but should work.
+     * @param downloadUrl The URL passed to download the .jar binary from.
+     */
     public UpdatePrompt(String downloadUrl) {
         JFrame askUpdate = new JFrame();
         askUpdate.setTitle("Update?");
