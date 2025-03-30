@@ -240,22 +240,57 @@ public class GamePanel extends JPanel implements ActionListener{
             y[i] = 0;
         }
         // game over text
-        g.setFont(new Font("Arial", Font.BOLD, 75));
+        g.setFont(new Font("Arial", Font.BOLD, 58));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.setColor(Color.red);
         g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/10);
         boolean displayHint = true; // for displaying a hint, if no new highscore has been achieved
-        if (applesEaten > highscoreManager.readHighscore()) { // new highscore
-            highscoreManager.newHighscore(applesEaten);
-            g.setColor(Color.GREEN);
-            g.setFont(new Font("Arial", Font.BOLD, 55));
-            metrics = getFontMetrics(g.getFont());
-            g.drawString("NEW HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("NEW HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
-            displayHint = false;
-        } else {
-            g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
-            g.setColor(Color.LIGHT_GRAY);
-            g.drawString("Highscore: " + highscoreManager.readHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Highscore: " + highscoreManager.readHighscore()))/2, SCREEN_HEIGHT/10*3);
+        switch(difficulty) {
+            case "Easy":
+                if (applesEaten > highscoreManager.readEasyHighscore()) { // new easy highscore
+                    highscoreManager.newEasyHighscore(applesEaten);
+                    g.setColor(Color.GREEN);
+                    g.setFont(new Font("Arial", Font.BOLD, 55));
+                    metrics = getFontMetrics(g.getFont());
+                    g.drawString("NEW EASY", (SCREEN_WIDTH - metrics.stringWidth("NEW EASY"))/2, SCREEN_HEIGHT/10*2);
+                    g.drawString("HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/10*2 + g.getFont().getSize());
+                    displayHint = false;
+                } else {
+                    g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.drawString("Easy Highscore: " + highscoreManager.readEasyHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Easy Highscore: " + highscoreManager.readEasyHighscore()))/2, SCREEN_HEIGHT/10*3);
+                }
+                break;
+            case "Medium":
+                if (applesEaten > highscoreManager.readMediumHighscore()) { // new medium highscore
+                    highscoreManager.newMediumHighscore(applesEaten);
+                    g.setColor(Color.GREEN);
+                    g.setFont(new Font("Arial", Font.BOLD, 55));
+                    metrics = getFontMetrics(g.getFont());
+                    g.drawString("NEW MEDIUM", (SCREEN_WIDTH - metrics.stringWidth("NEW MEDIUM"))/2, SCREEN_HEIGHT/10*2);
+                    g.drawString("HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/10*2 + g.getFont().getSize());
+                    displayHint = false;
+                } else {
+                    g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.drawString("Medium Highscore: " + highscoreManager.readMediumHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Medium Highscore: " + highscoreManager.readMediumHighscore()))/2, SCREEN_HEIGHT/10*3);
+                }
+                break;
+            case "Hard":
+                if (applesEaten > highscoreManager.readHardHighscore()) { // new hard highscore
+                    highscoreManager.newHardHighscore(applesEaten);
+                    g.setColor(Color.GREEN);
+                    g.setFont(new Font("Arial", Font.BOLD, 55));
+                    metrics = getFontMetrics(g.getFont());
+                    g.drawString("NEW HARD", (SCREEN_WIDTH - metrics.stringWidth("NEW HARD"))/2, SCREEN_HEIGHT/10*2);
+                    g.drawString("HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/10*2 + g.getFont().getSize());
+                    displayHint = false;
+                } else {
+                    g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.drawString("Hard Highscore: " + highscoreManager.readHardHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Hard Highscore: " + highscoreManager.readHardHighscore()))/2, SCREEN_HEIGHT/10*3);
+                }
+                break;
         }
         // hint for toggling grid
         if (displayHint) {
