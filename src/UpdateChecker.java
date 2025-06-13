@@ -17,8 +17,8 @@ public class UpdateChecker {
     private static final String VERSION_URL = "https://raw.githubusercontent.com/AndrexoHD/SimpleSnake/refs/heads/main/Release/version.txt";
     /**
     * Current version.
-    * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!
-    * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!
+    * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!</p>
+    * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!</p>
     */
     private static final String CURRENT_VERSION = "1.3.1";
 

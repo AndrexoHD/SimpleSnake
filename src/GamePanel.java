@@ -139,7 +139,7 @@ public class GamePanel extends JPanel implements ActionListener{
         if (x[0] < 0) {
             running = false;
         }
-        // check if head touches right border -1 because clipping for some reason
+        // check if head touches right border; -1 because clipping for some reason
         if (x[0] > SCREEN_WIDTH - 1) {
             running = false;
         }
@@ -240,11 +240,12 @@ public class GamePanel extends JPanel implements ActionListener{
             y[i] = 0;
         }
         // game over text
-        g.setFont(new Font("Arial", Font.BOLD, 58));
+        g.setFont(new Font("Arial", Font.BOLD, 50));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.setColor(Color.red);
         g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/10);
         boolean displayHint = true; // for displaying a hint, if no new highscore has been achieved
+        highscoreManager.resetAllHighscores();
         switch(difficulty) {
             case "Easy":
                 if (applesEaten > highscoreManager.readEasyHighscore()) { // new easy highscore
