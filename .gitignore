@@ -1,4 +1,6 @@
 .gitignore
+Snake.iml
 Snake.jar
 /.vscode/
 /.idea/
+/bin/
