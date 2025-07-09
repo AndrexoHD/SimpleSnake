@@ -4,7 +4,10 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.event.*;
+
 import javax.swing.*;
+
+import java.util.Map;
 import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener{
@@ -14,6 +17,9 @@ public class GamePanel extends JPanel implements ActionListener{
     static final int GAME_UNITS = (SCREEN_WIDTH*SCREEN_HEIGHT)/UNIT_SIZE;
     static int DELAY = 100;
     static String difficulty = "Medium";
+    public static final String EASY_DIFFICULTY = "Easy";
+    public static final String MEDIUM_DIFFICULTY = "Medium";
+    public static final String HARD_DIFFICULTY = "Hard";
     final int[] x = new int[GAME_UNITS];
     final int[] y = new int[GAME_UNITS];
     int bodyParts = 6;
@@ -27,6 +33,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
     /** Used if a second input occurs mid-frame. Ensures smoother gameplay.*/
     Character secondInput = null;
+
     boolean drawGrid = false;
     boolean pause = false;
     Timer timer;
@@ -54,10 +61,15 @@ public class GamePanel extends JPanel implements ActionListener{
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        draw(g);
+        try {
+            draw(g);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics g) throws Exception {
         if(startScreen) {
             homeMenu(g);
         } else if(running) {
@@ -171,37 +183,52 @@ public class GamePanel extends JPanel implements ActionListener{
         g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
         metrics = getFontMetrics(g.getFont());
         g.drawString("Difficulty: " + difficulty, (SCREEN_WIDTH - metrics.stringWidth("Difficulty: " + difficulty))/2, SCREEN_HEIGHT/10*2);
+        // username button
+        JButton usernameButton = new JButton("<html><center>Change Username<br>[U]</center></html>");
+        usernameButton.setBounds((SCREEN_WIDTH-175)/2, SCREEN_HEIGHT-175, 175, 50);
+        usernameButton.setFont(new Font("Arial", Font.BOLD, 15));
+        usernameButton.setFocusable(false);
+        this.add(usernameButton);
+        usernameButton.addActionListener((e) -> {
+            changeUsernamePrompt();
+        });
+        // username
+        g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
+        metrics = getFontMetrics(g.getFont());
+        g.drawString("Username: " + highscoreManager.readUsername(),
+        (SCREEN_WIDTH - metrics.stringWidth("Username: " + highscoreManager.readUsername()))/2,
+        SCREEN_HEIGHT-190);
         // easy button
         JButton easyButton = new JButton("<html><center>Easy<br>[1]</center></html>");
-        easyButton.setBounds(50, SCREEN_HEIGHT/10*3, 150, 75);
+        easyButton.setBounds(50, SCREEN_HEIGHT/20*5, 150, 75);
         easyButton.setFont(new Font("Arial", Font.BOLD, 30));
         easyButton.setFocusable(false);
         this.add(easyButton);
         easyButton.addActionListener((e) -> {
             DELAY = 250;
-            difficulty = "Easy";
+            difficulty = EASY_DIFFICULTY;
             repaint();
         });
         // medium button
         JButton mediumButton = new JButton("<html><center>Medium<br>[2]</center></html>");
-        mediumButton.setBounds((SCREEN_WIDTH-150)/2, SCREEN_HEIGHT/10*3, 150, 75);
+        mediumButton.setBounds((SCREEN_WIDTH-150)/2, SCREEN_HEIGHT/20*5, 150, 75);
         mediumButton.setFont(new Font("Arial", Font.BOLD, 25));
         mediumButton.setFocusable(false);
         this.add(mediumButton);
         mediumButton.addActionListener((e) -> {
             DELAY = 100;
-            difficulty = "Medium";
+            difficulty = MEDIUM_DIFFICULTY;
             repaint();
         });
         // hard button
         JButton hardButton = new JButton("<html><center>Hard<br>[3]</center></html>");
-        hardButton.setBounds((SCREEN_WIDTH-100)-100, SCREEN_HEIGHT/10*3, 150, 75);
+        hardButton.setBounds((SCREEN_WIDTH-100)-100, SCREEN_HEIGHT/20*5, 150, 75);
         hardButton.setFont(new Font("Arial", Font.BOLD, 25));
         hardButton.setFocusable(false);
         this.add(hardButton);
         hardButton.addActionListener((e) -> {
             DELAY = 50;
-            difficulty = "Hard";
+            difficulty = HARD_DIFFICULTY;
             repaint();
         });
         // controls
@@ -210,7 +237,7 @@ public class GamePanel extends JPanel implements ActionListener{
         metrics = getFontMetrics(g.getFont());
         String controls = "Controls:\n\nW A S D or ↑ ↓ → ← to move.\nSpace to start or pause game.\nESC to close game.";
         String[] lines = controls.split("\n");
-        int y = SCREEN_HEIGHT/2;
+        int y = SCREEN_HEIGHT/20*9;
         for (String line : lines) {
             g.drawString(line, 50, y);
             y += g.getFont().getSize();
@@ -218,8 +245,8 @@ public class GamePanel extends JPanel implements ActionListener{
         // start game button
         this.setLayout(null);
         JButton startGameButton = new JButton("<html><center>Start Game<br>[Space]</center></html>");
+        startGameButton.setBounds((SCREEN_WIDTH-200)/2, SCREEN_HEIGHT-100, 200, 80);
         startGameButton.setFont(new Font("Arial", Font.BOLD, 30));
-        startGameButton.setBounds((SCREEN_WIDTH-200)/2, SCREEN_HEIGHT-120, 200, 80);
         this.add(startGameButton);
         startGameButton.addActionListener((e) -> {
             startFromHome();
@@ -233,7 +260,21 @@ public class GamePanel extends JPanel implements ActionListener{
         startGame();
     }
 
-    public void gameOver(Graphics g) {
+    public void changeUsernamePrompt() {
+        String result = (String)JOptionPane.showInputDialog(
+            this,
+            "Select a username",
+            "Username",
+            JOptionPane.PLAIN_MESSAGE,
+            null,
+            null,
+            highscoreManager.readUsername()
+        );
+        if(result != null && result.length() > 0) highscoreManager.newUsername(result);
+        repaint();
+    }
+
+    public void gameOver(Graphics g) throws Exception {
         // erase snake from screen
         for (int i = 0; i < bodyParts; i++) {
             x[i] = 0;
@@ -245,10 +286,15 @@ public class GamePanel extends JPanel implements ActionListener{
         g.setColor(Color.red);
         g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/10);
         boolean displayHint = true; // for displaying a hint, if no new highscore has been achieved
-        highscoreManager.resetAllHighscores();
+        // highscoreManager.resetAllHighscores(); // TODO REMOVE ###################################################################################################################################################################################################################################################################
+        // highscore logic + show local highscore
         switch(difficulty) {
-            case "Easy":
-                if (applesEaten > highscoreManager.readEasyHighscore()) { // new easy highscore
+            case EASY_DIFFICULTY:
+            Map<String, Integer> easyLB = FirebaseLeaderboard.getRemoteLeaderboard(EASY_DIFFICULTY);
+                if (applesEaten > highscoreManager.readEasyHighscore()
+                    || !easyLB.containsKey(highscoreManager.readUsername())
+                    || applesEaten > easyLB.get(highscoreManager.readUsername())) { // new easy highscore
+
                     highscoreManager.newEasyHighscore(applesEaten);
                     g.setColor(Color.GREEN);
                     g.setFont(new Font("Arial", Font.BOLD, 55));
@@ -256,13 +302,20 @@ public class GamePanel extends JPanel implements ActionListener{
                     g.drawString("NEW EASY", (SCREEN_WIDTH - metrics.stringWidth("NEW EASY"))/2, SCREEN_HEIGHT/10*2);
                     g.drawString("HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/10*2 + g.getFont().getSize());
                     displayHint = false;
+
+                    // leaderboard
+                    easyLB.put(highscoreManager.readUsername(), applesEaten);
+                    FirebaseLeaderboard.uploadLeaderboard(easyLB, difficulty);
+                    System.out.println("Leaderboard aktualisiert: "+FirebaseLeaderboard.getRemoteLeaderboard(difficulty));
                 } else {
                     g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
                     g.setColor(Color.LIGHT_GRAY);
                     g.drawString("Easy Highscore: " + highscoreManager.readEasyHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Easy Highscore: " + highscoreManager.readEasyHighscore()))/2, SCREEN_HEIGHT/10*3);
                 }
+                // show leaderboard
+                printLeaderboard(g, difficulty);
                 break;
-            case "Medium":
+            case MEDIUM_DIFFICULTY:
                 if (applesEaten > highscoreManager.readMediumHighscore()) { // new medium highscore
                     highscoreManager.newMediumHighscore(applesEaten);
                     g.setColor(Color.GREEN);
@@ -277,7 +330,7 @@ public class GamePanel extends JPanel implements ActionListener{
                     g.drawString("Medium Highscore: " + highscoreManager.readMediumHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Medium Highscore: " + highscoreManager.readMediumHighscore()))/2, SCREEN_HEIGHT/10*3);
                 }
                 break;
-            case "Hard":
+            case HARD_DIFFICULTY:
                 if (applesEaten > highscoreManager.readHardHighscore()) { // new hard highscore
                     highscoreManager.newHardHighscore(applesEaten);
                     g.setColor(Color.GREEN);
@@ -313,6 +366,10 @@ public class GamePanel extends JPanel implements ActionListener{
         homeButton.setFont(new Font("Arial", Font.BOLD, 18));
         this.add(homeButton);
         homeButton.addActionListener((e) -> backToHome());
+    }
+
+    public void printLeaderboard(Graphics g, String difficulty) {
+
     }
 
     public void backToHome() {
@@ -394,6 +451,10 @@ public class GamePanel extends JPanel implements ActionListener{
                         resetGame();
                     }
                     break;
+                case KeyEvent.VK_U:
+                    if(startScreen) {
+                        changeUsernamePrompt();
+                    }
                 case KeyEvent.VK_G:
                     drawGrid = !drawGrid;
                     if(pause) repaint();
@@ -419,21 +480,21 @@ public class GamePanel extends JPanel implements ActionListener{
                 case KeyEvent.VK_1:
                     if (startScreen) {
                         DELAY = 250;
-                        difficulty = "Easy";
+                        difficulty = EASY_DIFFICULTY;
                         repaint();
                         break;
                     }
                 case KeyEvent.VK_2:
                     if (startScreen) {
                         DELAY = 100;
-                        difficulty = "Medium";
+                        difficulty = MEDIUM_DIFFICULTY;
                         repaint();
                         break;
                     }
                 case KeyEvent.VK_3:
                     if (startScreen) {
                         DELAY = 50;
-                        difficulty = "Hard";
+                        difficulty = HARD_DIFFICULTY;
                         repaint();
                         break;
                     }

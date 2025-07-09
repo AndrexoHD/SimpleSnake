@@ -1,8 +1,10 @@
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -11,6 +13,7 @@ import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class UpdateChecker {
@@ -43,14 +46,38 @@ public class UpdateChecker {
                 new GameFrame();
             }
         } catch (Exception e) {
-            // e.printStackTrace();
-            // TODO show window, that shows there was an error with the update checker
-            new GameFrame();
+            e.printStackTrace();
+            errorWindow();
         }
     }
 
     private static boolean isNewerVersion(String latest, String current) {
         return latest.compareTo(current) > 0; // Simple lexicographical version check
+    }
+
+    public void errorWindow() {
+        JFrame errorFrame = new JFrame("Error");
+        String errorText = "There was an error trying to look for updates.";
+        JLabel errorLabel = new JLabel(errorText);
+        errorLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        FontMetrics metrics = errorLabel.getFontMetrics(errorLabel.getFont());
+        JPanel errorPanel = new JPanel();
+        LayoutManager layout = new FlowLayout();
+        JButton errorOkButton = new JButton("Ok");
+        errorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        errorFrame.setSize(metrics.stringWidth(errorText)+20, 100);
+        errorFrame.setLocationRelativeTo(null);
+        errorFrame.setVisible(true);
+
+        errorPanel.setLayout(layout);
+        errorPanel.add(errorLabel);
+        errorPanel.add(errorOkButton);
+
+        errorOkButton.addActionListener((e) -> {
+            errorFrame.dispose();
+            new GameFrame();
+        });
+        errorFrame.add(errorPanel);
     }
 }
 
@@ -58,6 +85,10 @@ class UpdatePrompt extends JPanel {
     private final static int WIDTH = 300;
     private final static int HEIGHT = 200;
 
+    /**
+     * Ugly, but should work.
+     * @param downloadUrl The URL passed to download the .jar binary from.
+     */
     public UpdatePrompt(String downloadUrl) {
         JFrame askUpdate = new JFrame();
         askUpdate.setTitle("Update?");
