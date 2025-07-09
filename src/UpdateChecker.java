@@ -43,7 +43,9 @@ public class UpdateChecker {
                 new GameFrame();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            // TODO show window, that shows there was an error with the update checker
+            new GameFrame();
         }
     }
 
