@@ -12,34 +12,34 @@ public class HighscoreManager {
     }
 
     // Easy
-    public void newEasyHighscore(int score) { prefs.putInt(EASY_HIGH_SCORE_KEY, score); }
+    protected void newEasyHighscore(int score) { prefs.putInt(EASY_HIGH_SCORE_KEY, score); }
 
     public int readEasyHighscore() { return prefs.getInt(EASY_HIGH_SCORE_KEY, 0); }
 
-    public void resetEasyHighscore() { prefs.putInt(EASY_HIGH_SCORE_KEY, 0); }
+    protected void resetEasyHighscore() { prefs.putInt(EASY_HIGH_SCORE_KEY, 0); }
 
     // Medium
-    public void newMediumHighscore(int score) { prefs.putInt(MEDIUM_HIGH_SCORE_KEY, score); }
+    protected void newMediumHighscore(int score) { prefs.putInt(MEDIUM_HIGH_SCORE_KEY, score); }
 
     public int readMediumHighscore() { return prefs.getInt(MEDIUM_HIGH_SCORE_KEY, 0); }
 
-    public void resetMediumHighscore() { prefs.putInt(MEDIUM_HIGH_SCORE_KEY, 0); }
+    protected void resetMediumHighscore() { prefs.putInt(MEDIUM_HIGH_SCORE_KEY, 0); }
 
     // Hard
-    public void newHardHighscore(int score) { prefs.putInt(HARD_HIGH_SCORE_KEY, score); }
+    protected void newHardHighscore(int score) { prefs.putInt(HARD_HIGH_SCORE_KEY, score); }
 
     public int readHardHighscore() { return prefs.getInt(HARD_HIGH_SCORE_KEY, 0); }
 
-    public void resetHardHighscore() { prefs.putInt(HARD_HIGH_SCORE_KEY, 0); }
+    protected void resetHardHighscore() { prefs.putInt(HARD_HIGH_SCORE_KEY, 0); }
 
     // Username
-    public void newUsername(String username) { prefs.put(USERNAME_KEY, username); }
+    protected void newUsername(String username) { prefs.put(USERNAME_KEY, username); }
 
     public String readUsername() { return prefs.get(USERNAME_KEY, ""); }
 
-    public void resetUsername() { prefs.put(USERNAME_KEY, ""); }
+    protected void resetUsername() { prefs.put(USERNAME_KEY, ""); }
 
-    public void resetAllHighscores() {
+    protected void resetAllHighscores() {
         prefs.putInt(EASY_HIGH_SCORE_KEY, 0);
         prefs.putInt(MEDIUM_HIGH_SCORE_KEY, 0);
         prefs.putInt(HARD_HIGH_SCORE_KEY, 0);

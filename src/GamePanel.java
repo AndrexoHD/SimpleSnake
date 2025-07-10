@@ -9,12 +9,14 @@ import javax.swing.*;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 public class GamePanel extends JPanel implements ActionListener{
     static final int SCREEN_WIDTH = 600;
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
     static final int GAME_UNITS = (SCREEN_WIDTH*SCREEN_HEIGHT)/UNIT_SIZE;
+    static final int LEADERBOARD_ENTRIES = 10;
     static int DELAY = 100;
     static String difficulty = "Medium";
     public static final String EASY_DIFFICULTY = "Easy";
@@ -47,6 +49,9 @@ public class GamePanel extends JPanel implements ActionListener{
         this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
+        if (highscoreManager.readUsername().isBlank()) {
+            changeUsernamePrompt();
+        }
         startGame();
     }
 
@@ -181,6 +186,20 @@ public class GamePanel extends JPanel implements ActionListener{
         g.drawString("SimpleSnake", (SCREEN_WIDTH - metrics.stringWidth("SimpleSnake"))/2, SCREEN_HEIGHT/10*1);
         // difficulty
         g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
+        switch (difficulty) {
+            case EASY_DIFFICULTY:
+                g.setColor(Color.GREEN);
+                break;
+            case MEDIUM_DIFFICULTY:
+                g.setColor(Color.YELLOW);
+                break;
+            case HARD_DIFFICULTY:
+                g.setColor(Color.RED);
+                break;
+            default:
+                g.setColor(Color.LIGHT_GRAY);
+                break;
+        }
         metrics = getFontMetrics(g.getFont());
         g.drawString("Difficulty: " + difficulty, (SCREEN_WIDTH - metrics.stringWidth("Difficulty: " + difficulty))/2, SCREEN_HEIGHT/10*2);
         // username button
@@ -194,6 +213,7 @@ public class GamePanel extends JPanel implements ActionListener{
         });
         // username
         g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
+        g.setColor(new Color(90, 250, 135));
         metrics = getFontMetrics(g.getFont());
         g.drawString("Username: " + highscoreManager.readUsername(),
         (SCREEN_WIDTH - metrics.stringWidth("Username: " + highscoreManager.readUsername()))/2,
@@ -233,13 +253,14 @@ public class GamePanel extends JPanel implements ActionListener{
         });
         // controls
         g.setColor(Color.LIGHT_GRAY);
-        g.setFont(new Font("Arial", Font.BOLD, 25));
+        g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 25));
         metrics = getFontMetrics(g.getFont());
-        String controls = "Controls:\n\nW A S D or ↑ ↓ → ← to move.\nSpace to start or pause game.\nESC to close game.";
+        String controls = "Controls:\n\nWASD/↑↓→←:move\nSpace:start/pause game\nESC:close game";
         String[] lines = controls.split("\n");
-        int y = SCREEN_HEIGHT/20*9;
+        int y = (int)(SCREEN_HEIGHT/20*8.5);
         for (String line : lines) {
-            g.drawString(line, 50, y);
+            line = printControlLine(line);
+            g.drawString(line, (SCREEN_WIDTH-metrics.stringWidth(line))/2, y);
             y += g.getFont().getSize();
         }
         // start game button
@@ -253,7 +274,19 @@ public class GamePanel extends JPanel implements ActionListener{
         });
     }
 
-    /** This method only gets called once from homeMenu()*/
+    public String printControlLine(String line) {
+        if (line.equals("Controls:") || line.isBlank()) {
+            return line;
+        }
+        String[] split = line.split(":");
+        split[0] += ":";
+        for (int i = 0; i < 35-line.length(); i++) {
+            split[0] += ".";
+        }
+        return split[0]+split[1];
+    }
+
+    /** This method only gets called from homeMenu()*/
     public void startFromHome() {
         this.removeAll();
         startScreen = false;
@@ -261,15 +294,18 @@ public class GamePanel extends JPanel implements ActionListener{
     }
 
     public void changeUsernamePrompt() {
-        String result = (String)JOptionPane.showInputDialog(
-            this,
-            "Select a username",
-            "Username",
-            JOptionPane.PLAIN_MESSAGE,
-            null,
-            null,
-            highscoreManager.readUsername()
-        );
+        String result = "";
+        do {
+            result = (String)JOptionPane.showInputDialog(
+                this,
+                "Select a username - cannot be more than 20 characters.",
+                "Username",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                highscoreManager.readUsername()
+            );
+        } while (result.length() > 20);
         if(result != null && result.length() > 0) highscoreManager.newUsername(result);
         repaint();
     }
@@ -286,15 +322,14 @@ public class GamePanel extends JPanel implements ActionListener{
         g.setColor(Color.red);
         g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over"))/2, SCREEN_HEIGHT/10);
         boolean displayHint = true; // for displaying a hint, if no new highscore has been achieved
-        // highscoreManager.resetAllHighscores(); // TODO REMOVE ###################################################################################################################################################################################################################################################################
+
         // highscore logic + show local highscore
+        Map<String, Integer> lbMap = JSONLeaderboard.getRemoteLeaderboard(difficulty); // is null if database URL is empty.
+        // following code is designed to run flawlessly even if no remote leaderboard is present
+        // may be messy, but it works and I don't want to refactor this mess. I already spent too much hours on this.
         switch(difficulty) {
             case EASY_DIFFICULTY:
-            Map<String, Integer> easyLB = FirebaseLeaderboard.getRemoteLeaderboard(EASY_DIFFICULTY);
-                if (applesEaten > highscoreManager.readEasyHighscore()
-                    || !easyLB.containsKey(highscoreManager.readUsername())
-                    || applesEaten > easyLB.get(highscoreManager.readUsername())) { // new easy highscore
-
+                if (applesEaten > highscoreManager.readEasyHighscore()) { // new easy highscore
                     highscoreManager.newEasyHighscore(applesEaten);
                     g.setColor(Color.GREEN);
                     g.setFont(new Font("Arial", Font.BOLD, 55));
@@ -302,18 +337,21 @@ public class GamePanel extends JPanel implements ActionListener{
                     g.drawString("NEW EASY", (SCREEN_WIDTH - metrics.stringWidth("NEW EASY"))/2, SCREEN_HEIGHT/10*2);
                     g.drawString("HIGHSCORE: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("HIGHSCORE: " + applesEaten))/2, SCREEN_HEIGHT/10*2 + g.getFont().getSize());
                     displayHint = false;
-
-                    // leaderboard
-                    easyLB.put(highscoreManager.readUsername(), applesEaten);
-                    FirebaseLeaderboard.uploadLeaderboard(easyLB, difficulty);
-                    System.out.println("Leaderboard aktualisiert: "+FirebaseLeaderboard.getRemoteLeaderboard(difficulty));
                 } else {
                     g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
                     g.setColor(Color.LIGHT_GRAY);
                     g.drawString("Easy Highscore: " + highscoreManager.readEasyHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Easy Highscore: " + highscoreManager.readEasyHighscore()))/2, SCREEN_HEIGHT/10*3);
                 }
-                // show leaderboard
-                printLeaderboard(g, difficulty);
+                // upload user if username not present
+                if (lbMap != null && !lbMap.containsKey(highscoreManager.readUsername())) {
+                    lbMap.put(highscoreManager.readUsername(), highscoreManager.readEasyHighscore());
+                    JSONLeaderboard.uploadLeaderboard(lbMap, difficulty);
+                }
+                // upload new highscore to remote easy leaderboard
+                if (lbMap != null && highscoreManager.readEasyHighscore() > lbMap.get(highscoreManager.readUsername())) {
+                    lbMap.put(highscoreManager.readUsername(), highscoreManager.readEasyHighscore());
+                    JSONLeaderboard.uploadLeaderboard(lbMap, difficulty);
+                }
                 break;
             case MEDIUM_DIFFICULTY:
                 if (applesEaten > highscoreManager.readMediumHighscore()) { // new medium highscore
@@ -328,6 +366,16 @@ public class GamePanel extends JPanel implements ActionListener{
                     g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, SCREEN_HEIGHT/10*2);
                     g.setColor(Color.LIGHT_GRAY);
                     g.drawString("Medium Highscore: " + highscoreManager.readMediumHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Medium Highscore: " + highscoreManager.readMediumHighscore()))/2, SCREEN_HEIGHT/10*3);
+                }
+                // upload user if username not present
+                if (lbMap != null && !lbMap.containsKey(highscoreManager.readUsername())) {
+                    lbMap.put(highscoreManager.readUsername(), highscoreManager.readMediumHighscore());
+                    JSONLeaderboard.uploadLeaderboard(lbMap, difficulty);
+                }
+                // upload new highscore to remote medium leaderboard
+                if (lbMap != null && highscoreManager.readMediumHighscore() > lbMap.get(highscoreManager.readUsername())) {
+                    lbMap.put(highscoreManager.readUsername(), highscoreManager.readMediumHighscore());
+                    JSONLeaderboard.uploadLeaderboard(lbMap, difficulty);
                 }
                 break;
             case HARD_DIFFICULTY:
@@ -344,11 +392,25 @@ public class GamePanel extends JPanel implements ActionListener{
                     g.setColor(Color.LIGHT_GRAY);
                     g.drawString("Hard Highscore: " + highscoreManager.readHardHighscore(), (SCREEN_WIDTH - metrics.stringWidth("Hard Highscore: " + highscoreManager.readHardHighscore()))/2, SCREEN_HEIGHT/10*3);
                 }
+                // upload user if username not present
+                if (lbMap != null && !lbMap.containsKey(highscoreManager.readUsername())) {
+                    lbMap.put(highscoreManager.readUsername(), highscoreManager.readHardHighscore());
+                    JSONLeaderboard.uploadLeaderboard(lbMap, difficulty);
+                }
+                // upload new highscore to remote hard leaderboard
+                if (lbMap != null && highscoreManager.readHardHighscore() > lbMap.get(highscoreManager.readUsername())) {
+                    lbMap.put(highscoreManager.readUsername(), highscoreManager.readHardHighscore());
+                    JSONLeaderboard.uploadLeaderboard(lbMap, difficulty);
+                }
                 break;
         }
+        // show remote leaderboard if present
+        if (lbMap != null) printRemoteLeaderboard(g, lbMap, difficulty);
+
         // hint for toggling grid
         if (displayHint) {
             g.setFont(new Font("Arial", Font.PLAIN, 20));
+            g.setColor(Color.LIGHT_GRAY);
             metrics = getFontMetrics(g.getFont());
             g.drawString("Hint: Press G to toggle grid", (SCREEN_WIDTH - metrics.stringWidth("Hint: Press G to toggle grid"))/2, SCREEN_HEIGHT/20*17);
         }
@@ -368,8 +430,43 @@ public class GamePanel extends JPanel implements ActionListener{
         homeButton.addActionListener((e) -> backToHome());
     }
 
-    public void printLeaderboard(Graphics g, String difficulty) {
-
+    public void printRemoteLeaderboard(Graphics g, Map<String, Integer> leaderboard, String difficulty) throws Exception {
+        Map<String, Integer> result = new TreeMap<>((a, b) -> {
+            Integer va = leaderboard.get(a);
+            Integer vb = leaderboard.get(b);
+            if (va == null && vb == null) return a.compareTo(b);
+            if (va == null) return 1;
+            if (vb == null) return -1;
+            if (va == vb) return  1;
+            return vb - va;
+        });
+        result.putAll(leaderboard);
+        // System.out.println(result);
+        g.setColor(new Color(90, 250, 135));
+        g.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
+        FontMetrics metrics = getFontMetrics(g.getFont());
+        StringBuilder leaderboardText = new StringBuilder("Leaderboard ("+difficulty+" difficulty):\n");
+        int rank = 1;
+        for (Map.Entry<String, Integer> entry : result.entrySet()) {
+            if (rank>LEADERBOARD_ENTRIES) {
+                break;
+            }
+            String line = new Entry(entry.getKey(), entry.getValue()).printAsLine();
+            if (rank == 10) {
+                line = String.format("%-2d. %s", rank, line+"\n");
+            } else {
+                line = String.format("%d.  %s", rank, line+"\n");
+            }
+            leaderboardText.append(line);
+            // System.out.println("Eintrag "+rank+": "+entry);
+            rank++;
+        }
+        String[] lines = leaderboardText.toString().split("\n");
+        int y = SCREEN_HEIGHT/20*7;
+        for (String line : lines) {
+            g.drawString(line, (SCREEN_WIDTH-metrics.stringWidth(line))/2, y);
+            y += metrics.getHeight();
+        }
     }
 
     public void backToHome() {
@@ -455,6 +552,7 @@ public class GamePanel extends JPanel implements ActionListener{
                     if(startScreen) {
                         changeUsernamePrompt();
                     }
+                    break;
                 case KeyEvent.VK_G:
                     drawGrid = !drawGrid;
                     if(pause) repaint();

@@ -23,14 +23,14 @@ public class UpdateChecker {
     * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!</p>
     * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!</p>
     */
-    private static final String CURRENT_VERSION = "1.3.1";
+    private static final String CURRENT_VERSION = "2.0.0";
 
     public UpdateChecker() {
         try {
             URL url = new URI(VERSION_URL).toURL();
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-
+            conn.setConnectTimeout(60000);
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String latestVersion = reader.readLine(); // first line: version-number
             String downloadUrl = reader.readLine();  // second line: donwload-link
@@ -55,7 +55,7 @@ public class UpdateChecker {
         return latest.compareTo(current) > 0; // Simple lexicographical version check
     }
 
-    public void errorWindow() {
+    public static void errorWindow() {
         JFrame errorFrame = new JFrame("Error");
         String errorText = "There was an error trying to look for updates.";
         JLabel errorLabel = new JLabel(errorText);
@@ -63,9 +63,10 @@ public class UpdateChecker {
         FontMetrics metrics = errorLabel.getFontMetrics(errorLabel.getFont());
         JPanel errorPanel = new JPanel();
         LayoutManager layout = new FlowLayout();
-        JButton errorOkButton = new JButton("Ok");
+        JButton errorOkButton = new JButton("<html><center>Ok<br>[Space]</center></html>");
+        errorOkButton.setRequestFocusEnabled(true);
         errorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        errorFrame.setSize(metrics.stringWidth(errorText)+20, 100);
+        errorFrame.setSize(metrics.stringWidth(errorText)+20, 130);
         errorFrame.setLocationRelativeTo(null);
         errorFrame.setVisible(true);
 
