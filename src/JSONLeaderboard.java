@@ -49,8 +49,9 @@ public class JSONLeaderboard {
             in.close();
 
             Map<String, Integer> leaderboard = new HashMap<>();
-            if (!response.toString().equals(null)) {
-                JSONObject json = new JSONObject(response.toString());
+            String responseStr = response.toString().trim();
+            if (!responseStr.equals(null) && !responseStr.isEmpty() && responseStr.startsWith("{")) {
+                JSONObject json = new JSONObject(responseStr);
                 for (String key : json.keySet()) {
                     leaderboard.put(key, json.getInt(key));
                 }
@@ -58,6 +59,7 @@ public class JSONLeaderboard {
             // sortieren
             return leaderboard;
         } catch (Exception e) {
+            e.printStackTrace();
             // no internet connection or database URL is invalid, then return null and keep the programm running without a leaderboard
             return null;
         }
