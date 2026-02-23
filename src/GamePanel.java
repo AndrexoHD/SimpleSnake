@@ -49,7 +49,7 @@ public class GamePanel extends JPanel implements ActionListener{
         this.setBackground(Color.black);
         this.setFocusable(true);
         this.addKeyListener(new MyKeyAdapter());
-        if (highscoreManager.readUsername().isBlank()) {
+        if (highscoreManager.readUsername().trim().isEmpty()) {
             changeUsernamePrompt();
         }
         startGame();
@@ -275,7 +275,7 @@ public class GamePanel extends JPanel implements ActionListener{
     }
 
     public String printControlLine(String line) {
-        if (line.equals("Controls:") || line.isBlank()) {
+        if (line.equals("Controls:") || line.trim().isEmpty()) {
             return line;
         }
         String[] split = line.split(":");
@@ -305,7 +305,7 @@ public class GamePanel extends JPanel implements ActionListener{
                 null,
                 highscoreManager.readUsername()
             );
-        } while (result.length() > 20);
+        } while (result.length() <= 0 && result.length() > 20);
         if(result != null && result.length() > 0) highscoreManager.newUsername(result);
         repaint();
     }

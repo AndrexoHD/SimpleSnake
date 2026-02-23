@@ -6,8 +6,10 @@ Snake.jar
 /.idea/
 
 /bin/
+/target/
 /test/
 /test-lib/
 .classpath
 .project
 MANIFEST.MF
+dependency-reduced-pom.xml
