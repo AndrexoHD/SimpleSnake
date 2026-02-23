@@ -6,7 +6,8 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 @SuppressWarnings("deprecation")
 public class JSONLeaderboard {
@@ -51,9 +52,10 @@ public class JSONLeaderboard {
             Map<String, Integer> leaderboard = new HashMap<>();
             String responseStr = response.toString().trim();
             if (!responseStr.equals(null) && !responseStr.isEmpty() && responseStr.startsWith("{")) {
-                JSONObject json = new JSONObject(responseStr);
+                Gson gson = new Gson();
+                JsonObject json = gson.fromJson(responseStr, JsonObject.class);
                 for (String key : json.keySet()) {
-                    leaderboard.put(key, json.getInt(key));
+                    leaderboard.put(key, json.get(key).getAsInt());
                 }
             }
             // sortieren
@@ -89,10 +91,11 @@ public class JSONLeaderboard {
             con.setRequestProperty("Content-Type", "application/json");
             con.setConnectTimeout(60000);
 
-            JSONObject json = new JSONObject(lb);
+            Gson gson = new Gson();
+            String json = gson.toJson(lb);
 
             try (OutputStream os = con.getOutputStream()) {
-                byte[] input = json.toString().getBytes("utf-8");
+                byte[] input = json.getBytes("utf-8");
                 os.write(input, 0, input.length);
             }
             con.getInputStream().close();

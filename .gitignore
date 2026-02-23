@@ -6,6 +6,8 @@ Snake.jar
 /.idea/
 
 /bin/
-/lib/
 /test/
 /test-lib/
+.classpath
+.project
+MANIFEST.MF
