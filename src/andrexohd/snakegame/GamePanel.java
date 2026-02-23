@@ -1,3 +1,5 @@
+package andrexohd.snakegame;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -305,8 +307,15 @@ public class GamePanel extends JPanel implements ActionListener{
                 null,
                 highscoreManager.readUsername()
             );
-        } while (result.length() <= 0 && result.length() > 20);
-        if(result != null && result.length() > 0) highscoreManager.newUsername(result);
+            if(result == null) {
+                if(highscoreManager.readUsername().trim().isEmpty()) {
+                    System.out.println("No username set, exiting game.");
+                    System.exit(0);
+                }
+                return;
+            }
+        } while (result.length() <= 0 || result.length() > 20);
+        highscoreManager.newUsername(result);
         repaint();
     }
 

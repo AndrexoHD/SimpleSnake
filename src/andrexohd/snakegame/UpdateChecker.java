@@ -1,3 +1,5 @@
+package andrexohd.snakegame;
+
 import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -23,7 +25,7 @@ public class UpdateChecker {
     * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!</p>
     * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!</p>
     */
-    private static final String CURRENT_VERSION = "2.0.0";
+    private static final String CURRENT_VERSION = "2.1.0";
 
     public UpdateChecker() {
         try {
@@ -99,7 +101,7 @@ class UpdatePrompt extends JPanel {
         askUpdate.setAlwaysOnTop(true);
         askUpdate.setVisible(true);
         askUpdate.setLocationRelativeTo(null);
-        askUpdate.add(this);
+
         Container contentPane = this;
         contentPane.setLayout(new GridLayout(2,1));
         Container empty = new Container();
@@ -119,6 +121,8 @@ class UpdatePrompt extends JPanel {
         });
         contentPane.add(empty);
         contentPane.add(buttons);
+
+        askUpdate.add(this);
     }
 
     public void draw(Graphics g) {

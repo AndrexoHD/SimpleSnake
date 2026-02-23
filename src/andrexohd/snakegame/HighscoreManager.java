@@ -1,8 +1,10 @@
+package andrexohd.snakegame;
+
 import java.util.prefs.Preferences;
 
 public class HighscoreManager {
     private static final String EASY_HIGH_SCORE_KEY = "easyHighScore";
-    private static final String MEDIUM_HIGH_SCORE_KEY = "highScore";
+    private static final String MEDIUM_HIGH_SCORE_KEY = "mediumHighScore";
     private static final String HARD_HIGH_SCORE_KEY = "hardHighScore";
     private static final String USERNAME_KEY = "usernameKey";
     private Preferences prefs;

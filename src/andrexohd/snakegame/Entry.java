@@ -1,3 +1,4 @@
+package andrexohd.snakegame;
 
 // class Leaderboard {
 //     private Entry[] leaderboard;
