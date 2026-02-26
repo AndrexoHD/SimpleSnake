@@ -14,7 +14,7 @@ import com.google.gson.JsonObject;
 @SuppressWarnings("deprecation")
 public class JSONLeaderboard {
 
-    // if you want to host your own JSON Realtime Database then fill in these URLs
+    // If you want to host your own JSON Realtime Database then fill in these URLs. Make sure the URLs end with .json
     private static final String EASY_DATABASE_URL = "";
     private static final String MEDIUM_DATABASE_URL = "";
     private static final String HARD_DATABASE_URL = "";
@@ -103,6 +103,7 @@ public class JSONLeaderboard {
             con.getInputStream().close();
         } catch (Exception e) {
             // no internet connection or database URL is invalid, then keep the programm running without a leaderboard
+            e.printStackTrace();
         }
     }
 }
