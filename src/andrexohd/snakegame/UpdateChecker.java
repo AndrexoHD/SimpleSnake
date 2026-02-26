@@ -25,7 +25,7 @@ public class UpdateChecker {
     * <p>If on GitHub: <b>MUST BE SAME</b> as in version.txt!</p>
     * <p>!!! POSSIBLE ENDLESS RECUSION IF NOT !!!</p>
     */
-    private static final String CURRENT_VERSION = "2.1.0";
+    private static final String CURRENT_VERSION = "2.1.1";
 
     public UpdateChecker() {
         try {
