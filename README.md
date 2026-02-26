@@ -1,9 +1,10 @@
 Snake with 3 difficulty levels and an online leaderboard.
 
 If you want to build it on your own simply do
-`https://github.com/AndrexoHD/SimpleSnake.git
-cd SimpleSnake
-mvn clean package`
+
+`https://github.com/AndrexoHD/SimpleSnake.git`  
+`cd SimpleSnake`  
+`mvn clean package`
 
 Then you should be able to execute the `Snake.jar` file found in the target directory.
 
